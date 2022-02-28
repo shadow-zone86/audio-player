@@ -1,32 +1,55 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
+    <header class="header">
+      <div class="container">
+        <div class="header__body">
+          <router-link to="/" class="header__logo"><img src="image/logo.png" alt=""></router-link>
+        </div>
+      </div>
+    </header>
     <router-view/>
   </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
+<style scoped>
+  .container {
+    max-width: 1180px;
+    margin: 0px auto;
+    padding: 0px 10px;
   }
-}
+
+  .header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 50;
+  }
+
+  .header:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #35495e;
+  }
+
+  .header__body {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    height: 80px;
+    align-items: center;
+  }
+
+  .header__logo {
+    flex: 0 0 60px;
+  }
+
+  .header__logo img {
+    max-width: 100%;
+  }
 </style>
