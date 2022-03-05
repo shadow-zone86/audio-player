@@ -1,63 +1,146 @@
 <template>
-    <div class="content__playlist">
+    <div class="playlist">
         <div class="search">
-            <b-form-input class="search__input" v-model="search" placeholder="Поиск..."></b-form-input>
+            <input class="search__input" v-model="search" placeholder="Поиск...">
         </div>
-        <div class="playlist">
-            <ul class="menu">
-                <li class="menu__item" :key="index" :class="{ active: index === getActiveItem}" @click="select(list.id, list.title)" v-for="(list, index) in mySearch">
-                    <b>{{ list.artist }}</b> - {{ list.title }}.mp3
-                </li>
-            </ul>
-        </div>
+        <ul class="menu">
+            <li class="menu__item" :key="list.id" :class="{ active: list.id === getActiveItem }" @click="select(list.id, list.title)" v-for="(list) in mySearch">
+                <div class="menu__text" v-if="list.id === getActiveItem">
+                    <div class="menu__text" v-if="getTimeStamp === ''">
+                        <b>{{ list.artist }}</b> - {{ list.title }}.mp3 <b class="menu__text_right">00:00 / {{ list.time }}</b>
+                    </div>
+                    <div class="menu__text" v-else>
+                        <b>{{ list.artist }}</b> - {{ list.title }}.mp3 <b class="menu__text_right">{{ getTimeStamp }} / {{ list.time }}</b>
+                    </div>
+                </div>
+                <div class="menu__text" v-else>
+                    <b>{{ list.artist }}</b> - {{ list.title }}.mp3 <b class="menu__text_right">{{ list.time }}</b>
+                </div>
+            </li>
+        </ul>
     </div>
 </template>
 
-<script>
+<script lang="ts">
     import { mapGetters, mapActions } from "vuex"
-    export default {
+    import Vue from 'vue'
+    export default Vue.extend({
         data() {
             return {
                 search: '',
+                selectTrack: 0,
             };
         },
         computed: {
             ...mapGetters([
-                "getSongIndex",
                 "getTrackList",
                 "getActiveItem",
+                "getTimeStamp",
+                "getTrackActive",
             ]),
-            mySearch: function () {
-                var search = this.search;
-                return this.getTrackList.filter(function (elem) {
-                    if(search === '') {
+            mySearch(): string {
+                var search = this.search
+                return this.getTrackList.filter(function (elem: any) {
+                    if (search === '') {
                         return true
                     } else {
-                        return elem.title.indexOf(search) > -1
+                        return (elem.title.toUpperCase().indexOf(search.toUpperCase()) > -1 || elem.artist.toUpperCase().indexOf(search.toUpperCase()) > -1)
                     } 
                 })
             },
         },
         methods: {
             ...mapActions([
-                "actionSongIndex", 
+                "actionSongIndex",
                 "actionTrackActive", 
                 "actionActiveItem",
-                "actionSearch",
+            ]),
+            select: function (id:number, title:string) {
+                if (this.selectTrack != id) {
+                    this.actionSongIndex(id)
+                    this.$emit('setAudio', title)
+                    this.$emit('play')
+                    this.actionTrackActive(1)
+                    this.actionActiveItem(id)
+                    this.$emit('timeupdate')
+                    this.selectTrack = id
+                } else {
+                    switch (this.getTrackActive) {
+                        case 0:
+                            this.$emit('play')
+                            this.actionTrackActive(1)
+                            this.$emit('timeupdate')
+                            break
+                        case 1:
+                            this.$emit('pause')
+                            this.actionTrackActive(0)
+                            break
+                    }
+                }
+            },
+        },
+        mounted() {
+            this.actionSongIndex(0)
+        },
+    })
+</script>
+
+<!--
+<script>
+    import { mapGetters, mapActions } from "vuex"
+    export default {
+        data() {
+            return {
+                search: '',
+                selectTrack: 0,
+            };
+        },
+        computed: {
+            ...mapGetters([
+                "getTrackList",
+                "getActiveItem",
+                "getTimeStamp",
+                "getTrackActive",
+            ]),
+            mySearch: function () {
+                var search = this.search
+                return this.getTrackList.filter(function (elem) {
+                    if (search === '') {
+                        return true
+                    } else {
+                        return (elem.title.toUpperCase().indexOf(search.toUpperCase()) > -1 || elem.artist.toUpperCase().indexOf(search.toUpperCase()) > -1)
+                    } 
+                })
+            },
+        },
+        methods: {
+            ...mapActions([
+                "actionSongIndex",
+                "actionTrackActive", 
+                "actionActiveItem",
             ]),
             select: function (id, title) {
-                this.actionSongIndex(id)
-                this.$parent.$refs.timestamp.style.display = 'block'
-                this.$parent.$refs.audio.src = `audio/${title}.mp3`
-                this.$parent.$refs.audio.play()
-                this.actionTrackActive(1)
-                this.actionActiveItem(id)
-                this.$parent.$refs.audio.addEventListener('timeupdate', this.updateProgress)
-            },
-            updateProgress: function (e) {
-                const {duration, currentTime} = e.srcElement
-                const progressPercent = (currentTime / duration) * 100
-                this.$parent.$refs.progressbar.style.width = `${progressPercent}%`
+                if (this.selectTrack != id) {
+                    this.actionSongIndex(id)
+                    this.$emit('setAudio', title)
+                    this.$emit('play')
+                    this.actionTrackActive(1)
+                    this.actionActiveItem(id)
+                    this.$emit('timeupdate')
+                    this.selectTrack = id
+                } else {
+                    switch (this.getTrackActive) {
+                        case 0:
+                            this.$emit('play')
+                            this.actionTrackActive(1)
+                            this.$emit('timeupdate')
+                            break
+                        case 1:
+                            this.$emit('pause')
+                            this.actionTrackActive(0)
+                            break
+                    }
+                }
             },
         },
         mounted() {
@@ -65,10 +148,12 @@
         },
     }
 </script>
+-->
 
 <style scoped>
-    .content__playlist {
+    .playlist {
         width: 550px;
+        display: inline-block;
     }
 
     .search {
@@ -83,7 +168,7 @@
         width: 100%;	
         height: 25px;
         line-height: 25px;
-        text-indent:1em;
+        text-indent: 1em;
         border: 3px solid #35495e;
         border-radius: 10px;
         margin-top: 10px;
@@ -97,7 +182,7 @@
         width: 100%;	
         height: 25px;
         line-height: 25px;
-        text-indent:1em;
+        text-indent: 1em;
         background: #35495e;
         outline: 2px solid #35495e;
         border: 3px solid #ffffff;
@@ -138,6 +223,11 @@
         -moz-transition-delay: 0.5s;
         transition: .4s ease-out;
         transition-delay: 0.1s;
+    }
+
+    .menu__text_right {
+        float: right;
+        margin-right: 1em;
     }
 
     .active {

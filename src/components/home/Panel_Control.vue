@@ -1,11 +1,11 @@
 <template>
-    <div class="content__control">
+    <div class="control">
         <div class="information">
-            <marquee scrollamount="2" class="information__audio">
-                <p><b>{{ getSongIndex[0]['artist'] }}</b> - {{ getSongIndex[0]['title'] }}.mp3</p>
+            <marquee class="information__marquee" scrollamount="2">
+                <p class="information__text"><b>{{ getSongIndex[0]['artist'] }}</b> - {{ getSongIndex[0]['title'] }}.mp3</p>
             </marquee>
         </div>
-        <div class="control">
+        <div class="management">
             <button class="button" @click="backward">
                 <b-icon class="button__title" icon="skip-backward"></b-icon>
             </button>
@@ -18,17 +18,21 @@
             <button class="button" @click="forward">
                 <b-icon class="button__title" icon="skip-forward"></b-icon>
             </button>
-            <input class="range" ref="range" min="0" max="1" value="0.5" step="0.1" type="range" @change="range">
+            <input class="range" v-model="sound" ref="range" min="0" max="1" value="0.5" step="0.1" type="range" @change="range">
         </div>
     </div>
 </template>
 
-<script>
+<script lang="ts">
     import { mapGetters, mapActions } from "vuex"
-    export default {
+    import Vue from 'vue'
+    export default Vue.extend({
         data() {
             return {
                 percent: 0,
+                next: 0,
+                back: 1,
+                sound: 0.5,
             };
         },
         computed: {
@@ -41,69 +45,90 @@
         methods: {
             ...mapActions([
                 "actionTrackActive",
-                "actionNextAudio",
-                "actionPreviousAudio",
-                "actionTimeStamp",
+                "actionSwitchAudio",
             ]),
             backward: function () {
-                this.actionPreviousAudio()
-                this.$parent.$refs.audio.src = `audio/${this.getActiveTitle}.mp3`
-                this.$parent.$refs.audio.play()
+                this.actionSwitchAudio(this.back)
+                this.$emit('setAudio', this.getActiveTitle)
+                this.$emit('play')
             },
             play: function () {
-                this.$parent.$refs.audio.play()
+                this.$emit('play')
                 this.actionTrackActive(1)
-                this.$parent.$refs.timestamp.style.display = 'block'
-                this.$parent.$refs.audio.addEventListener('timeupdate', this.updateProgress)
+                this.$emit('timeupdate')
             },
             pause: function () {
-                this.$parent.$refs.audio.pause()
+                this.$emit('pause')
                 this.actionTrackActive(0)
             },
             forward: function () {
-                this.actionNextAudio()
-                this.$parent.$refs.audio.src = `audio/${this.getActiveTitle}.mp3`
-                this.$parent.$refs.audio.play()
+                this.actionSwitchAudio(this.next)
+                this.$emit('setAudio', this.getActiveTitle)
+                this.$emit('play')
             },
             range: function () {
-                this.$parent.$refs.audio.volume = this.$refs.range.value
+                this.$emit('sound', this.sound)
             },
-            updateProgress: function (e) {
-                const {duration, currentTime} = e.srcElement
-                const progressPercent = (currentTime / duration) * 100
-                this.$parent.$refs.progressbar.style.width = `${progressPercent}%`
-                /* Определение текущего времени песни */
-                let hours = Math.floor(currentTime / 60 / 60)
-                let minutes = Math.floor(currentTime / 60) - (hours * 60)
-                let seconds = currentTime % 60
-                let concatenation = ''
-                if (minutes < 10) {
-                    minutes = '0' + minutes
-                }
-                if (seconds < 10) {
-                    concatenation = ':0'
-                } else {
-                    concatenation = ':'
-                }
-                let timestamp = minutes + concatenation + Math.floor(seconds)
-                this.actionTimeStamp(timestamp)
-                /* Определение процентов для переключения на другую песню при полном прослушивании */
-                this.percent = `${progressPercent}`
-                if (this.percent == 100) {
-                    this.actionNextAudio()
-                    this.$parent.$refs.audio.src = `audio/${this.getActiveTitle}.mp3`
-                    this.$parent.$refs.audio.play()
-                }
+        },
+    })
+</script>
+
+<!--
+<script>
+    import { mapGetters, mapActions } from "vuex"
+    export default {
+        data() {
+            return {
+                percent: 0,
+                next: 0,
+                back: 1,
+                sound: 0.5,
+            };
+        },
+        computed: {
+            ...mapGetters([
+                "getTrackActive",
+                "getSongIndex",
+                "getActiveTitle",
+            ]),
+        },
+        methods: {
+            ...mapActions([
+                "actionTrackActive",
+                "actionSwitchAudio",
+            ]),
+            backward: function () {
+                this.actionSwitchAudio(this.back)
+                this.$emit('setAudio', this.getActiveTitle)
+                this.$emit('play')
+            },
+            play: function () {
+                this.$emit('play')
+                this.actionTrackActive(1)
+                this.$emit('timeupdate')
+            },
+            pause: function () {
+                this.$emit('pause')
+                this.actionTrackActive(0)
+            },
+            forward: function () {
+                this.actionSwitchAudio(this.next)
+                this.$emit('setAudio', this.getActiveTitle)
+                this.$emit('play')
+            },
+            range: function () {
+                this.$emit('sound', this.sound)
             },
         },
     }
 </script>
+-->
 
 <style scoped>
-    .content__control {
+    .control {
         width: 550px;
         text-align: center;
-        display: inline-block;;
+        display: inline-block;
     }
 
     .button__title {
@@ -167,7 +192,7 @@
         color: #35495e;
     }
 
-    .information__audio {
+    .information__marquee {
         width: 100%;
     }
 
