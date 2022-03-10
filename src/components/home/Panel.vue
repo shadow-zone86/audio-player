@@ -15,8 +15,8 @@
 
 <script lang="ts">
     import { mapGetters, mapActions } from "vuex"
-    import Control from '@/components/home/Panel_Control.vue'
-    import Playlist from '@/components/home/Panel_Playlist.vue'
+    import Control from '@/components/home/PanelControl.vue'
+    import Playlist from '@/components/home/PanelPlaylist.vue'
     import Vue from 'vue'
     export default Vue.extend({
         data() {
@@ -46,7 +46,7 @@
             pause: function () {
                 (this.$refs.audio as HTMLAudioElement).pause()
             },
-            sound: function (range:any) {
+            sound: function (range:number) {
                 (this.$refs.audio as HTMLAudioElement).volume = range
             },
             updateProgress: function (e:any) {
