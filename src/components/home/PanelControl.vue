@@ -24,6 +24,55 @@
 </template>
 
 <script lang="ts">
+    import { Component, Vue, Emit } from 'vue-property-decorator'
+    import { namespace } from 'vuex-class'
+    const Player = namespace('Player')
+    @Component
+    export default class PanelControl extends Vue {
+        public percent = 0
+        public next = 0
+        public back = 1
+        public sound = 0.5
+
+        @Player.Getter
+        public getTrackActive!:number
+        @Player.Getter
+        public getSongIndex!:any
+        @Player.Getter
+        public getActiveTitle!:string
+
+        @Player.Action
+        public actionTrackActive!: (active:number) => void
+        @Player.Action
+        public actionSwitchAudio!: (index:number) => void
+
+        public backward():void {
+            this.actionSwitchAudio(this.back)
+            this.$emit('setAudio', this.getActiveTitle)
+            this.$emit('play')
+        }
+        public play():void {
+            this.$emit('play')
+            this.actionTrackActive(1)
+            this.$emit('timeupdate')
+        }
+        public pause():void {
+            this.$emit('pause')
+            this.actionTrackActive(0)
+        }
+        public forward():void {
+            this.actionSwitchAudio(this.next)
+            this.$emit('setAudio', this.getActiveTitle)
+            this.$emit('play')
+        }
+        public range():void {
+            this.$emit('sound', this.sound)
+        }
+    }
+</script>
+
+<!--
+<script lang="ts">
     import { mapGetters, mapActions } from "vuex"
     import Vue from 'vue'
     export default Vue.extend({
@@ -72,6 +121,7 @@
         },
     })
 </script>
+-->
 
 <!--
 <script>

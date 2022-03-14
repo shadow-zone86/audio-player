@@ -22,6 +22,75 @@
 </template>
 
 <script lang="ts">
+    import { Component, Vue } from 'vue-property-decorator'
+    import { namespace } from 'vuex-class'
+    const Player = namespace('Player')
+    @Component
+    export default class PanelPlaylist extends Vue {
+        public search = ''
+        public selectTrack = 0
+
+        @Player.Getter
+        public getTrackList!:any
+        @Player.Getter
+        public getActiveItem!:number
+        @Player.Getter
+        public getTimeStamp!:string
+        @Player.Getter
+        public getTrackActive!:number
+
+        @Player.Action
+        private actionBigT!:(text:string) => void
+        @Player.Action
+        public actionSongIndex!:(id:number) => void
+        @Player.Action
+        public actionTrackActive!:(active:number) => void
+        @Player.Action
+        public actionActiveItem!:(item:number) => void
+
+        get mySearch():string {
+            var search = this.search
+            return this.getTrackList.filter(function (elem:any) {
+                if (search === '') {
+                    return true
+                } else {
+                    return (elem.title.toUpperCase().indexOf(search.toUpperCase()) > -1 || elem.artist.toUpperCase().indexOf(search.toUpperCase()) > -1)
+                } 
+            })
+        }
+
+        public select(id:number, title:string):void {
+            if (this.selectTrack != id) {
+                this.actionSongIndex(id)
+                this.$emit('setAudio', title)
+                this.$emit('play')
+                this.actionTrackActive(1)
+                this.actionActiveItem(id)
+                this.$emit('timeupdate')
+                this.selectTrack = id
+            } else {
+                switch (this.getTrackActive) {
+                    case 0:
+                        this.$emit('play')
+                        this.actionTrackActive(1)
+                        this.$emit('timeupdate')
+                    break
+                    case 1:
+                        this.$emit('pause')
+                        this.actionTrackActive(0)
+                    break
+                }
+            }
+        }
+
+        mounted() {
+            this.actionSongIndex(0)
+        }
+    }
+</script>
+
+<!--
+<script lang="ts">
     import { mapGetters, mapActions } from "vuex"
     import Vue from 'vue'
     export default Vue.extend({
@@ -84,6 +153,7 @@
         },
     })
 </script>
+-->
 
 <!--
 <script>

@@ -14,6 +14,80 @@
 </template>
 
 <script lang="ts">
+    import { Component, Vue } from 'vue-property-decorator'
+    import { namespace } from 'vuex-class'
+    import Control from '@/components/home/PanelControl.vue'
+    import Playlist from '@/components/home/PanelPlaylist.vue'
+    const Player = namespace('Player')
+    @Component({
+        components: {
+            Control,
+            Playlist,
+        },
+    })
+    export default class Panel extends Vue {
+        public next = 0
+        public percent = ''
+
+        @Player.Getter
+        public getTimeStamp!:string
+        @Player.Getter
+        public getSongIndex!:any
+
+        @Player.Action
+        public actionTimeStamp!: (timestamp:string) => void
+        @Player.Action
+        public actionSwitchAudio!: (index:number) => void
+
+        public play():void {
+            (this.$refs.audio as HTMLAudioElement).play()
+        }
+        public pause():void {
+            (this.$refs.audio as HTMLAudioElement).pause()
+        }
+        public sound(range:number):void {
+            (this.$refs.audio as HTMLAudioElement).volume = range
+        }
+        public setAudio(name:string):void {
+            (this.$refs.audio as HTMLAudioElement).src = `audio/${name}.mp3`
+        }
+        public setProgress():void {
+            (this.$refs.progress as HTMLElement).addEventListener('click', this.setProgressBar)
+        }
+        public setProgressBar(e:any):void {
+            (this.$refs.audio as HTMLAudioElement).currentTime = (e.offsetX / (this.$refs.progress as HTMLBRElement).clientWidth) * (this.$refs.audio as HTMLAudioElement).duration
+        }
+        public updateProgress(e:any):void {
+            (this.$refs.progressbar as HTMLElement).style.width = `${(e.srcElement.currentTime / e.srcElement.duration) * 100}%`
+            /* Определение текущего времени песни */
+            let hours = Math.floor(e.srcElement.currentTime / 60 / 60)
+            let minutes = Math.floor(e.srcElement.currentTime / 60) - (hours * 60)
+            let seconds = e.srcElement.currentTime % 60
+            let concatenation = ''
+            let timeMinute = ''
+            if (minutes < 10) {
+                timeMinute = '0' + minutes
+            }
+            if (seconds < 10) {
+                concatenation = ':0'
+            } else {
+                concatenation = ':'
+            }
+            let timestamp = timeMinute + concatenation + Math.floor(seconds)
+            this.actionTimeStamp(timestamp)
+            /* Определение процентов для переключения на другую песню при полном прослушивании */
+            this.percent = `${(e.srcElement.currentTime / e.srcElement.duration) * 100}`
+            if (this.percent == '100') {
+                this.actionSwitchAudio(this.next)
+                this.setAudio(this.getSongIndex[0]['title'])
+                this.play()
+            }
+        }
+    }
+</script>
+
+<!--
+<script lang="ts">
     import { mapGetters, mapActions } from "vuex"
     import Control from '@/components/home/PanelControl.vue'
     import Playlist from '@/components/home/PanelPlaylist.vue'
@@ -87,12 +161,13 @@
         },
     })
 </script>
+-->
 
 <!--
 <script>
     import { mapGetters, mapActions } from "vuex"
-    import Control from '@/components/home/Panel_Control.vue'
-    import Playlist from '@/components/home/Panel_Playlist.vue'
+    import Control from '@/components/home/PanelControl.vue'
+    import Playlist from '@/components/home/PanelPlaylist.vue'
     import Vue from 'vue'
     export default Vue.extend({
         data() {
