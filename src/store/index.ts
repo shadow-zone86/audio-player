@@ -1,39 +1,48 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import Player from '@/store/modules/player'
 
 Vue.use(Vuex)
 
+const store = new Vuex.Store({
+  modules: {
+    Player
+  }
+})
+export default store
+
+/*
 export default new Vuex.Store({
   state: {
-    trackActive: 0, /* запуск проигрывателя (0 - стоп, 1 - играть) */
+    trackActive: 0, // запуск проигрывателя (0 - стоп, 1 - играть)
     trackList: [
       { id: 0, title: "Audiophyla", artist: "Valve", time: "06:14" },
       { id: 1, title: "Minute_Quantity", artist: "Matt Carter", time: "01:59" },
       { id: 2, title: "Money_Money_Money", artist: "Italians", time: "08:00" },
       { id: 3, title: "Peppy_The_Firing_Squad", artist: "Peppy", time: "03:22" },
       { id: 4, title: "Tight_Rope", artist: "Effel Dur", time: "03:40" },
-    ], /* список песен */
+    ], // список песен
     songIndex: [
       { id: 0, title: '', artist: '', time: '' }
-    ], /* активная песня */
-    activeItem: 0, /* активный select песни */
-    timeStamp: '', /* отметка времени песни */
-    search: '', /* поиск */
+    ], // активная песня
+    activeItem: 0, // активный select песни
+    timeStamp: '', // отметка времени песни
+    search: '', // поиск
   },
   mutations: {
-    /* активация проигрывателя (0 - стоп, 1 - играть) */
+    // активация проигрывателя (0 - стоп, 1 - играть)
     mutationTrackActive(state, active:number) {
       state.trackActive = active
     },
-    /* активируем выбранный пользователем select песни */
+    // активируем выбранный пользователем select песни
     mutationActiveItem(state, item:number) {
       state.activeItem = item
     },
-    /* отметка времени песни */
+    // отметка времени песни
     mutationTimeStamp(state, timestamp:string) {
       state.timeStamp = timestamp
     },
-    /* определение активной песни */
+    // определение активной песни
     mutationSongIndex(state, id:number) {
       state.trackList.forEach(function (value) {
         if(value.id === id) {
@@ -44,7 +53,7 @@ export default new Vuex.Store({
         }
       })
     },
-    /* переключение на следующую(предыдущую) песню */
+    // переключение на следующую(предыдущую) песню
     mutationSwitchAudio(state, index:number) {
       let counter = state.trackList.length - 1
       let current = state.activeItem
@@ -77,55 +86,56 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    /* запуск проигрывателя (0 - стоп, 1 - играть) */
+    // запуск проигрывателя (0 - стоп, 1 - играть)
     actionTrackActive(ctx, active) {
       ctx.commit('mutationTrackActive', active)
     },
-    /* активируем выбранный пользователем select песни */
+    // активируем выбранный пользователем select песни
     actionActiveItem(ctx, item) {
       ctx.commit('mutationActiveItem', item)
     },
-    /* отметка времени песни */
+    // отметка времени песни
     actionTimeStamp(ctx, timestamp) {
       ctx.commit('mutationTimeStamp', timestamp)
     },
-    /* определение активной песни */
+    // определение активной песни
     actionSongIndex(ctx, id) {
       ctx.commit('mutationSongIndex', id)
     },
-    /* переключение на следующую(предыдущую) песню */
+    // переключение на следующую(предыдущую) песню
     actionSwitchAudio(ctx, index) {
       ctx.commit('mutationSwitchAudio', index)
     },
   },
   getters: {
-    /* определение запуска проигрывателя */
+    // определение запуска проигрывателя
     getTrackActive(state) {
       return state.trackActive
     },
-    /* список песен */
+    // список песен
     getTrackList(state) {
       return state.trackList
     },
-    /* активная песня */
+    // активная песня
     getSongIndex(state) {
       return state.songIndex
     },
-    /* активный select песни */
+    // активный select песни
     getActiveItem(state) {
       return state.activeItem
     },
-    /* название активной песни */
+    // название активной песни
     getActiveTitle(state) {
       return state.songIndex[0]['title']
     },
-    /* отметка времени песни */
+    // отметка времени песни
     getTimeStamp(state) {
       return state.timeStamp
     },
-    /* отметка времени песни */
+    // отметка времени песни
     getSearch(state) {
       return state.search
     },
   },
 })
+*/
