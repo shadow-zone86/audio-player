@@ -40,6 +40,11 @@
         public getTrackActive!:number
 
         @Player.Action
+<<<<<<< HEAD
+=======
+        private actionBigT!:(text:string) => void
+        @Player.Action
+>>>>>>> 6d84f1811df67f6b0ed2b27c00a26597a91d65fb
         public actionSongIndex!:(id:number) => void
         @Player.Action
         public actionTrackActive!:(active:number) => void
